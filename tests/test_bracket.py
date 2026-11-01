@@ -336,7 +336,7 @@ class FullPipelineWithFakeAgents(TempDir):
         self.assertTrue(rep["attacks_survived"])
 
     def test_spawn_briefs_share_one_task_and_differ_in_card(self):
-        d = os.path.join(self.tmp, "run16")
+        d = os.path.join(self.tmp, "runquick")
         self.ok("init", "--quick", "--seed", 4, "--task", self.TASK, "--dir", d)
         self.ok("prompts", "spawn", "--dir", d)
         blocks, cards = set(), set()
@@ -344,9 +344,9 @@ class FullPipelineWithFakeAgents(TempDir):
             brief = read(os.path.join(d, "prompts", "r0", name))
             blocks.add(brief.split("=== THE TASK (identical for every competitor) ===\n")[1].split("\n=== END")[0])
             cards.add(brief.split("=== YOUR STRATEGY CARD ===")[1].split("=== END OF THE CARD ===")[0])
-        self.assertEqual(len(os.listdir(os.path.join(d, "prompts", "r0"))), 16)
+        self.assertEqual(len(os.listdir(os.path.join(d, "prompts", "r0"))), B.QUICK_AGENTS)
         self.assertEqual(blocks, {self.TASK}, "every competitor gets the exact same task text")
-        self.assertEqual(len(cards), 16, "every competitor gets a different card")
+        self.assertEqual(len(cards), B.QUICK_AGENTS, "every competitor gets a different card")
 
     def test_unreadable_verdict_is_set_aside_and_rerun(self):
         d = os.path.join(self.tmp, "bad")
@@ -373,10 +373,10 @@ class Guards(TempDir):
         self.assertEqual(cli("init", "--quick", "--agents", 8, "--task", "t", "--dir", d + "4").returncode, 2)
         self.assertEqual(cli("init", "--agents", 4, "--task", "   ", "--dir", d + "5").returncode, 2)
 
-    def test_quick_is_16(self):
+    def test_quick_is_4(self):
         d = os.path.join(self.tmp, "quick")
         self.ok("init", "--quick", "--task", "t", "--dir", d)
-        self.assertEqual(load(d)["agents_n"], 16)
+        self.assertEqual(load(d)["agents_n"], 4)
 
     def test_record_rejects_an_outsider(self):
         d = os.path.join(self.tmp, "rec")

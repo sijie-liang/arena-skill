@@ -7,7 +7,7 @@ own context gets compacted halfway through a 100-agent run.
 
     python3 bracket.py plan --agents 100             # rounds, sub-agent calls and waves. Writes nothing.
     python3 bracket.py init --agents 100 --seed 7 --task-file task.md [--baseline-file old.md]
-    python3 bracket.py init --quick --task "..."     # 16 agents
+    python3 bracket.py init --quick --task "..."     # 4 agents
     python3 bracket.py next                          # what to do now, and the exact command for it
     python3 bracket.py prompts <phase>               # write the sub-agent briefs, list the jobs left, in waves
     python3 bracket.py check <phase>                 # which outputs are still missing
@@ -40,8 +40,8 @@ STRATEGIES_PATH = os.path.join(HERE, "strategies.json")
 SKILL_PATH = os.path.join(HERE, "SKILL.md")
 RUBRIC_PATH = os.path.join(HERE, "rubric.md")
 
-DEFAULT_AGENTS = 100
-QUICK_AGENTS = 16
+DEFAULT_AGENTS = 8
+QUICK_AGENTS = 4
 DEFAULT_WAVE = 10          # Claude Code runs at most 10 tool calls at once by default
 ROOT = ".arena"
 LATEST = "LATEST"

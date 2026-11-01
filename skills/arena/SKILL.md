@@ -1,18 +1,18 @@
 ---
 name: arena
 description: >-
-  Make 100 versions of Claude fight to the death over one task. Spins up N
-  sub-agents (default 100, --quick for 16), gives every one the exact same
-  task plus a different strategy card (reasoning mode, workflow, strategy),
-  then runs a single-elimination bracket: they attack each other's solutions,
-  defend and revise, and a judge scores every match on a written rubric until
-  one solution survives. Use when the user is not satisfied with an answer,
-  calls it a bad answer, says try again or do better, says "arena", or asks
-  to make them compete.
-argument-hint: "[--agents N | --quick] [--seed S] <task>"
+  Runs a tournament of N sub-agents (default 8, --quick for 4) on one task.
+  Every one gets the exact same task plus a different strategy card, then they
+  attack each other's solutions, defend and revise, and a judge scores every
+  match until one solution survives. Use ONLY when the user explicitly types
+  /arena. Never invoke it on your own: not when the user is unhappy with an
+  answer, calls it bad, says try again or do better, or mentions an arena or
+  competing without typing /arena. In those cases, answer normally.
 ---
 
 # arena
+
+Usage: `/arena [--agents N | --quick] [--seed S] [task]`
 
 For when Claude keeps giving a bad answer. Instead of asking again and again, this runs a tournament:
 N sub-agents get the exact same task, each attacks it with a different reasoning mode, workflow and
@@ -43,8 +43,8 @@ Read the flags out of the request. Everything that is not a flag is the task.
 
 | flag | meaning |
 | --- | --- |
-| `--agents N` | N competitors. Default 100. |
-| `--quick` | 16 competitors. The everyday setting. |
+| `--agents N` | N competitors. Default 8. |
+| `--quick` | 4 competitors. The cheapest setting. |
 | `--seed S` | Fixes the cards and the pairings. Default: random, and recorded. |
 | `--wave W` | Sub-agents per wave. Default 10. Only raise it if the user raised Claude Code's limit. |
 
@@ -53,13 +53,11 @@ last answer to it is the baseline to beat.
 
 Run `ARENA plan --agents N` (or `--quick`). It prints the rounds, the sub-agent calls and the waves.
 
-- **The user asked for the arena** (typed `/arena`, said "arena", or asked to make them compete):
-  tell them in one line how big it is, for example "100 agents, 7 rounds, 595 sub-agent calls", and
-  start.
-- **This skill fired because the user is unhappy** ("that's wrong", "try again", "bad answer") and
-  never mentioned the arena: ask once before spending anything. Offer three options: the full arena
-  (100 agents, 595 sub-agent calls), `--quick` (16 agents, 91 calls), or an ordinary retry. Wait for
-  the answer.
+- **The user typed `/arena`**: tell them in one line how big it is, for example "8 agents, 3
+  rounds, 43 sub-agent calls", and start.
+- **Anything else** (the user said "try again", "bad answer", "arena" or "make them compete" without
+  typing `/arena`): this skill should not have loaded. Do not run it and do not offer it. Answer the
+  user normally.
 
 Sub-agents write their work into `.arena/` in the current directory. In the default permission mode
 that is one approval per file, which is hundreds on a big run. Before the spawn phase, suggest
@@ -80,7 +78,7 @@ on its own:
 - If there is an answer to beat: what the user disliked about it, in their words.
 
 Do not add requirements the user never gave. Do not write your own view of the right answer into it:
-that pushes 100 agents the same way, which is the opposite of the point.
+that pushes every agent the same way, which is the opposite of the point.
 
 If there is an earlier answer the user was not satisfied with, write it word for word to
 `.arena/baseline.md`.
@@ -126,7 +124,7 @@ The order `next` takes you through:
   user rejected, blind to which is which. Then `ARENA collect`.
 - `next` prints DONE: go to step 5.
 
-After each `advance`, give the user one line, such as "Round 2 done: 25 of 100 left." Nothing more.
+After each `advance`, give the user one line, such as "Round 1 done: 4 of 8 left." Nothing more.
 Never paste pairings, attacks, verdicts or solutions into the chat.
 
 Why waves: Claude Code runs at most 10 tool calls at once by default (the
@@ -141,7 +139,7 @@ solution file you read in the whole run. Give the user:
 1. **The winning solution**, in full.
 2. **Why it won**: the attacks it survived, from `winner`, as a short list. Its card on one line
    (reasoning mode + workflow + strategy).
-3. **Rounds**: for example "7 rounds, 100 agents in, 1 left."
+3. **Rounds**: for example "3 rounds, 8 agents in, 1 left."
 4. **Against the answer you rejected**, if there was one: the final check's scores, honestly. If the
    old answer scored higher, say so plainly and show both.
 5. Where the full record lives: the run folder.
